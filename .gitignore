@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+reports/html/*
+reports/markdown/*
+reports/pdf/*
+
+.env
