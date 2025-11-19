@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>SOC Auto-Reporter 360 - Dashboard</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+<header class="topbar">
+    <div class="brand">
+        <div class="brand-logo">
+            <img src="/static/img/logo-menarguez.png"
+                 alt="Menarguez-IA Solutions">
+        </div>
+        <div>
+            <h1>SOC Auto-Reporter 360</h1>
+            <p>by Menarguez-IA-Solutions · Nacho Menárguez Fernández</p>
+        </div>
+    </div>
+
+    <div class="top-actions">
+        <!-- Botón para volver al dashboard “limpio” -->
+        <button type="button"
+                class="secondary"
+                onclick="window.location.href='/dashboard';">
+            Nuevo escaneo
+        </button>
+
+        <!-- Enlace a tu web -->
+        <a class="brand-link"
+           href="https://menarguez-ia.com"
+           target="_blank"
+           rel="noopener">
+            menarguez-ia.com
+        </a>
+    </div>
+</header>
+
+<main class="container">
+    <!-- Panel subida XML -->
+    <section class="panel">
+        <h2>Subir XML de Nmap</h2>
+        <p class="subtitle">
+            Sube un informe <code>-oX</code> de Nmap y lo transformamos en un panel visual.
+        </p>
+        <form action="/dashboard" method="post" enctype="multipart/form-data" class="upload-form">
+            <input type="file" name="file" accept=".xml" required>
+            <button type="submit">Analizar escaneo</button>
+        </form>
+    </section>
+
+    {% if scan %}
+    <!-- Resumen del escaneo -->
+    <section class="panel">
+        <h2>Resumen del escaneo</h2>
+        <div class="cards">
+            <div class="card card-up">
+                <h3>Hosts UP</h3>
+                <p class="big-number">{{ scan.hosts_up }}</p>
+            </div>
+            <div class="card card-down">
+                <h3>Hosts DOWN</h3>
+                <p class="big-number">{{ scan.hosts_down }}</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Hosts y puertos -->
+    <section class="panel">
+        <h2>Hosts y puertos</h2>
+
+        {% for host in scan.hosts %}
+        <div class="host-block">
+            <div class="host-header">
+                <h3>{{ host.ip }}</h3>
+                {% if host.hostname %}
+                <span class="hostname">{{ host.hostname }}</span>
+                {% endif %}
+            </div>
+
+            <table>
+                <thead>
+                <tr>
+                    <th>Puerto</th>
+                    <th>Protocolo</th>
+                    <th>Servicio</th>
+                    <th>Estado</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for p in host.ports %}
+                    <tr class="state-{{ p.state }}">
+                        <td>{{ p.port }}</td>
+                        <td>{{ p.protocol }}</td>
+                        <td>{{ p.service or "-" }}</td>
+                        <td class="state-label">{{ p.state }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endfor %}
+    </section>
+
+    <!-- Informe Markdown listo para copiar -->
+    {% if markdown %}
+    <section class="panel">
+        <h2>Informe rápido Nmap (Markdown)</h2>
+
+        <div class="export-row">
+            <button type="button" class="secondary" onclick="copyMarkdown()">
+                Copiar informe Markdown
+            </button>
+        </div>
+
+        <div class="markdown-box">
+            <textarea id="markdown-report" readonly>{{ markdown }}</textarea>
+        </div>
+    </section>
+    {% endif %}
+    {% endif %}
+</main>
+
+<script>
+function copyMarkdown() {
+    const ta = document.getElementById('markdown-report');
+    if (!ta) return;
+
+    ta.focus();
+    ta.select();
+
+    // Intento moderno con Clipboard API
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(ta.value)
+            .then(() => alert('Informe Markdown copiado al portapapeles ✅'))
+            .catch(() => fallbackCopy(ta));
+    } else {
+        fallbackCopy(ta);
+    }
+}
+
+function fallbackCopy(ta) {
+    try {
+        document.execCommand('copy');
+        alert('Informe Markdown copiado al portapapeles ✅');
+    } catch (e) {
+        alert('No se ha podido copiar automáticamente. Copia el texto manualmente.');
+    }
+}
+</script>
+
+</body>
+</html>

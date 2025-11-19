@@ -1,3 +1,3 @@
-from . import health  # más adelante añadiremos nmap, authlog, reports
+from . import health, nmap
 
-__all__ = ["health"]
+__all__ = ["health", "nmap"]

@@ -1,54 +1,49 @@
 # SOC Auto-Reporter 360
 
-Herramienta de **Blue Team** para analizar resultados de **Nmap** y logs de autenticación (`auth.log`),
-obtener métricas rápidas de exposición y ataques, y generar un **informe ejecutivo** listo para pegar
-en un ticket de SOC o presentar a dirección.
+Herramienta para **analistas SOC y Blue Team** que convierte informes Nmap (`-oX`) en:
 
-Proyecto pensado para:
+- Un **dashboard visual** en HTML con:
+  - Hosts UP / DOWN
+  - Tabla de hosts y puertos
+  - Informe rápido en **Markdown** listo para pegar en un ticket del SOC
+- Un flujo automatizado desde un **script Nmap en Bash** (`nmap_suite.sh`) que:
+  - Lanza el escaneo
+  - Genera el informe técnico clásico en HTML
+  - Envía el XML al backend FastAPI
+  - Abre el dashboard HTML estático generado
 
-- Uso en **hackathons** de ciberseguridad / IA.
-- Portfolio técnico de **Ignacio Menárguez (Menarguez-IA-Solutions)**.
-- Base para futuras integraciones con IA y dashboards más avanzados.
-
----
-
-## 🧩 Funcionalidades previstas
-
-Versión inicial:
-
-- API en **Python + FastAPI**.
-- Endpoint de salud (`/api/v1/health`).
-- Módulos para:
-  - Analizar resultados de Nmap (XML/gnmap).
-  - Analizar `auth.log` (intentos fallidos, usuarios atacados, logins OK).
-  - Generar informes HTML con estructura ejecutiva.
-
-Roadmap:
-
-- ✔️ Estructura de proyecto y API base.
-- ⏳ Parseo de Nmap y `auth.log`.
-- ⏳ Plantillas HTML para informes.
-- ⏳ Integración con IA (resumen ejecutivo y priorización de riesgos).
-- ⏳ Exportación a PDF / Markdown.
+Desarrollado por **Nacho Menárguez Fernández – Menarguez-IA-Solutions**.
 
 ---
 
-## 🛠️ Tecnologías
+## 🧩 Arquitectura
 
-- **Backend**: FastAPI, Pydantic, pydantic-settings.
-- **Servidor ASGI**: Uvicorn.
-- **Lenguaje**: Python 3.11+.
-- **Infraestructura prevista**: despliegue sencillo en contenedor o VM.
+- **Backend API**: FastAPI  
+  Endpoint `/api/v1/nmap/upload` que recibe el XML (`multipart/form-data`) y devuelve un resumen JSON.
+
+- **Dashboard**:  
+  Ruta `/dashboard` (Jinja2 + HTML + CSS) donde se muestran:
+  - Hosts UP / DOWN
+  - Tabla de puertos por host
+  - Informe rápido en Markdown
+
+- **Script Bash**: `scripts/nmap_suite.sh`  
+  Menú interactivo que:
+  - Ejecuta distintos tipos de escaneo Nmap
+  - Guarda XML/LOG
+  - Genera informe técnico HTML clásico
+  - Llama al backend, guarda `dashboard_soc.html` y lo abre en el navegador.
 
 ---
 
-## 📂 Estructura del proyecto
+## 🚀 Requisitos
 
-La estructura detallada está en [`STRUCTURE.md`](./STRUCTURE.md), pero a alto nivel:
+### Backend (FastAPI)
 
-```text
-backend/     # API (FastAPI) y lógica de negocio
-data/        # Datos de ejemplo (Nmap, auth.log)
-reports/     # Informes generados (HTML, Markdown, PDF)
-docs/        # Documentación (arquitectura, endpoints, notas de hackathon)
-frontend/    # (Opcional) UI separada si se desarrolla más adelante
+- Python 3.10+
+- Entorno virtual recomendado
+
+Instalación:
+
+```bash
+pip install -r requirements.txt
