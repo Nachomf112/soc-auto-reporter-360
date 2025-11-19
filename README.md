@@ -47,3 +47,20 @@ Instalación:
 
 ```bash
 pip install -r requirements.txt
+
+## 🚀 Quickstart
+
+```bash
+# 1) Clonar el repo
+git clone https://github.com/Nachomf112/soc-auto-reporter-360.git
+cd soc-auto-reporter-360
+
+# 2) Crear entorno virtual e instalar dependencias
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+
+# 3) Arrancar el backend
+cd backend
+uvicorn app.main:app --reload
+
